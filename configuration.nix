@@ -9,6 +9,18 @@
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
+  hardware.enableRedistributableFirmware = true;
+  hardware.graphics = {
+    enable = true;
+    # enable32Bit = true; # steam / 32bit game
+    extraPackages = with pkgs; [
+      mesa
+    ];
+    # extraPackages = with pkgs; [
+    #   mesa
+    #   amdvlk
+    # ];
+  };
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
@@ -76,13 +88,26 @@
     # If you want to use JACK applications, uncomment this
     # jack.enable = true;
   };
-
+  nix.settings = {
+    substituters = [
+      "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
+      "https://cache.nixos.org"
+    ];
+    trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+    ];
+    experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
+  };
   # Enable touchpad support (enabled default in most desktopManager).
   # services.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users."tempest" = {
     isNormalUser = true;
+    shell = pkgs.bash;
     description = "Toyosatomiminomiko";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
@@ -109,6 +134,8 @@
   localsend
   fastfetch
   python3
+  vulkan-tools
+  mesa-demos
 ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -122,7 +149,11 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  # services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    openFirewall = true;
+  };
+  #services.xserver.videoDrivers = ["modesetting"];
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
